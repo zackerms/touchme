@@ -1,66 +1,102 @@
 import type { Profile } from "@/types/profile";
-
-const STORAGE_KEY = "touchme_profiles";
+import { supabase } from "./supabase";
 
 class StorageAdapter {
-  private isClient(): boolean {
-    return typeof window !== "undefined";
-  }
-
-  getProfiles(): Profile[] {
-    if (!this.isClient()) {
-      return [];
-    }
-
+  async getProfiles(): Promise<Profile[]> {
     try {
-      const data = localStorage.getItem(STORAGE_KEY);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .order("created_at", { ascending: false });
+
+      if (error) {
+        console.error("Failed to get profiles from Supabase:", error);
+        return [];
+      }
+
       if (!data) {
         return [];
       }
-      return JSON.parse(data) as Profile[];
+
+      // データベースのスキーマからProfile型に変換
+      return data.map((row) => ({
+        id: row.id,
+        name: row.name,
+        imageUrl: row.image_url || "",
+        links: row.links || {},
+      }));
     } catch (error) {
-      console.error("Failed to get profiles from localStorage:", error);
+      console.error("Failed to get profiles from Supabase:", error);
       return [];
     }
   }
 
-  getProfile(id: string): Profile | null {
-    const profiles = this.getProfiles();
-    return profiles.find((p) => p.id === id) || null;
-  }
-
-  saveProfile(profile: Profile): void {
-    if (!this.isClient()) {
-      return;
-    }
-
+  async getProfile(id: string): Promise<Profile | null> {
     try {
-      const profiles = this.getProfiles();
-      const existingIndex = profiles.findIndex((p) => p.id === profile.id);
+      const { data, error } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", id)
+        .single();
 
-      if (existingIndex >= 0) {
-        profiles[existingIndex] = profile;
-      } else {
-        profiles.push(profile);
+      if (error) {
+        console.error("Failed to get profile from Supabase:", error);
+        return null;
       }
 
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(profiles));
+      if (!data) {
+        return null;
+      }
+
+      // データベースのスキーマからProfile型に変換
+      return {
+        id: data.id,
+        name: data.name,
+        imageUrl: data.image_url || "",
+        links: data.links || {},
+      };
     } catch (error) {
-      console.error("Failed to save profile to localStorage:", error);
+      console.error("Failed to get profile from Supabase:", error);
+      return null;
     }
   }
 
-  deleteProfile(id: string): void {
-    if (!this.isClient()) {
-      return;
-    }
-
+  async saveProfile(profile: Profile): Promise<void> {
     try {
-      const profiles = this.getProfiles();
-      const filtered = profiles.filter((p) => p.id !== id);
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(filtered));
+      const { error } = await supabase.from("profiles").upsert(
+        {
+          id: profile.id,
+          name: profile.name,
+          image_url: profile.imageUrl || null,
+          links: profile.links || {},
+          updated_at: new Date().toISOString(),
+        },
+        {
+          onConflict: "id",
+        }
+      );
+
+      if (error) {
+        console.error("Failed to save profile to Supabase:", error);
+        throw error;
+      }
     } catch (error) {
-      console.error("Failed to delete profile from localStorage:", error);
+      console.error("Failed to save profile to Supabase:", error);
+      throw error;
+    }
+  }
+
+  async deleteProfile(id: string): Promise<void> {
+    try {
+      const { error } = await supabase.from("profiles").delete().eq("id", id);
+
+      if (error) {
+        console.error("Failed to delete profile from Supabase:", error);
+        throw error;
+      }
+    } catch (error) {
+      console.error("Failed to delete profile from Supabase:", error);
+      throw error;
     }
   }
 

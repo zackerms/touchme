@@ -8,19 +8,37 @@ import type { Profile } from "@/types/profile";
 
 export default function Home() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const router = useRouter();
 
   useEffect(() => {
-    setProfiles(storage.getProfiles());
+    const loadProfiles = async () => {
+      try {
+        const data = await storage.getProfiles();
+        setProfiles(data);
+      } catch (error) {
+        console.error("Failed to load profiles:", error);
+        alert("プロフィールの読み込みに失敗しました");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadProfiles();
   }, []);
 
-  const handleDelete = (id: string, e: React.MouseEvent) => {
+  const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
     if (confirm("このプロフィールを削除しますか？")) {
-      storage.deleteProfile(id);
-      setProfiles(storage.getProfiles());
+      try {
+        await storage.deleteProfile(id);
+        const data = await storage.getProfiles();
+        setProfiles(data);
+      } catch (error) {
+        console.error("Failed to delete profile:", error);
+        alert("プロフィールの削除に失敗しました");
+      }
     }
   };
 
@@ -187,7 +205,11 @@ export default function Home() {
             + 新規作成
           </button>
         </div>
-        {profiles.length === 0 ? (
+        {isLoading ? (
+          <div style={emptyStateStyle}>
+            <p style={emptyStatePStyle}>読み込み中...</p>
+          </div>
+        ) : profiles.length === 0 ? (
           <div style={emptyStateStyle}>
             <p style={emptyStatePStyle}>プロフィールがありません</p>
             <button

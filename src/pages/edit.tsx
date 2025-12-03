@@ -22,35 +22,49 @@ export default function Edit() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    if (router.isReady) {
-      if (id && typeof id === "string") {
-        const existing = storage.getProfile(id);
-        if (existing) {
-          setProfile(existing);
+    const loadProfile = async () => {
+      if (router.isReady) {
+        if (id && typeof id === "string") {
+          try {
+            const existing = await storage.getProfile(id);
+            if (existing) {
+              setProfile(existing);
+            } else {
+              alert("プロフィールが見つかりません");
+              router.push("/");
+            }
+          } catch (error) {
+            console.error("Failed to load profile:", error);
+            alert("プロフィールの読み込みに失敗しました");
+            router.push("/");
+          }
         } else {
-          alert("プロフィールが見つかりません");
-          router.push("/");
+          setProfile({
+            id: storage.generateId(),
+            name: "",
+            imageUrl: "",
+            links: {},
+          });
         }
-      } else {
-        setProfile({
-          id: storage.generateId(),
-          name: "",
-          imageUrl: "",
-          links: {},
-        });
+        setIsLoading(false);
       }
-      setIsLoading(false);
-    }
+    };
+    loadProfile();
   }, [router.isReady, id, router]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!profile.name.trim()) {
       alert("名前を入力してください");
       return;
     }
-    storage.saveProfile(profile);
-    router.push(`/profile/${profile.id}`);
+    try {
+      await storage.saveProfile(profile);
+      router.push(`/profile/${profile.id}`);
+    } catch (error) {
+      console.error("Failed to save profile:", error);
+      alert("プロフィールの保存に失敗しました");
+    }
   };
 
   const handleChange = (

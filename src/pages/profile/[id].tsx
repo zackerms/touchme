@@ -14,16 +14,26 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
-    if (router.isReady && id && typeof id === "string") {
-      const found = storage.getProfile(id);
-      if (found) {
-        setProfile(found);
-      } else {
-        alert("プロフィールが見つかりません");
-        router.push("/");
+    const loadProfile = async () => {
+      if (router.isReady && id && typeof id === "string") {
+        try {
+          const found = await storage.getProfile(id);
+          if (found) {
+            setProfile(found);
+          } else {
+            alert("プロフィールが見つかりません");
+            router.push("/");
+          }
+        } catch (error) {
+          console.error("Failed to load profile:", error);
+          alert("プロフィールの読み込みに失敗しました");
+          router.push("/");
+        } finally {
+          setIsLoading(false);
+        }
       }
-      setIsLoading(false);
-    }
+    };
+    loadProfile();
   }, [router.isReady, id, router]);
 
   const loadingStyle: React.CSSProperties = {
