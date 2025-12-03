@@ -206,6 +206,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     alignItems: "center",
     justifyContent: "center",
     gap: "20px",
+    transform: "rotateY(180deg)",
   };
 
   const qrcodeLabelStyle: React.CSSProperties = {
