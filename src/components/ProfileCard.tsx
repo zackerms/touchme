@@ -15,6 +15,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
   const [gyroEnabled, setGyroEnabled] = useState(false);
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
+  const currentRotationRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     if (!gyroEnabled) {
@@ -25,10 +26,20 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       if (event.rotationRate) {
         const { alpha, beta } = event.rotationRate;
         if (alpha !== null && beta !== null) {
-          setRotation({
-            x: Math.max(-20, Math.min(20, beta * 0.5)),
-            y: Math.max(-20, Math.min(20, alpha * 0.5)),
-          });
+          // 感度を下げる（0.5 → 0.2）
+          const sensitivity = 0.2;
+          // スムージング係数（0.1 = 10%の変化を適用、90%は前の値を保持）
+          const smoothing = 0.15;
+          
+          const targetX = Math.max(-20, Math.min(20, beta * sensitivity));
+          const targetY = Math.max(-20, Math.min(20, alpha * sensitivity));
+          
+          // 前の値と現在の値をブレンドしてスムーズに
+          const smoothedX = currentRotationRef.current.x * (1 - smoothing) + targetX * smoothing;
+          const smoothedY = currentRotationRef.current.y * (1 - smoothing) + targetY * smoothing;
+          
+          currentRotationRef.current = { x: smoothedX, y: smoothedY };
+          setRotation({ x: smoothedX, y: smoothedY });
         }
       }
     };
@@ -39,14 +50,25 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     };
   }, [gyroEnabled]);
 
+  const getFirstSNSLink = (): string | null => {
+    if (profile.links.twitter) return profile.links.twitter;
+    if (profile.links.github) return profile.links.github;
+    if (profile.links.zenn) return profile.links.zenn;
+    return null;
+  };
+
   const handleCardClick = () => {
     if (isFlipped) {
       // QRコード表示中にカードをタップしたら表面に戻る
       setIsFlipped(false);
       setFlippedLink(null);
-    } else if (!gyroEnabled) {
-      // ジャイロを有効にする
-      setGyroEnabled(true);
+    } else {
+      // カードが表面のとき: 最初のSNSリンクがあれば、そのURLでQRコードを表示して裏返す
+      const firstLink = getFirstSNSLink();
+      if (firstLink) {
+        setFlippedLink(firstLink);
+        setIsFlipped(true);
+      }
     }
   };
 
