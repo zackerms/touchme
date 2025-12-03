@@ -182,10 +182,10 @@ export default function Edit() {
       width: "100%",
       padding: "12px",
       background: isFocused
-        ? "rgba(255, 255, 255, 0.08)"
-        : "rgba(255, 255, 255, 0.05)",
+        ? "rgba(0, 0, 0, 0.04)"
+        : "rgba(0, 0, 0, 0.02)",
       border: `1px solid ${
-        isFocused ? "#6366f1" : "rgba(255, 255, 255, 0.2)"
+        isFocused ? "#6366f1" : "rgba(0, 0, 0, 0.1)"
       }`,
       borderRadius: "8px",
       color: "var(--foreground)",
