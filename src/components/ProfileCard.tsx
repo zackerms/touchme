@@ -26,10 +26,10 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       if (event.rotationRate) {
         const { alpha, beta } = event.rotationRate;
         if (alpha !== null && beta !== null) {
-          // 感度を下げる（0.5 → 0.2）
-          const sensitivity = 0.2;
-          // スムージング係数（0.1 = 10%の変化を適用、90%は前の値を保持）
-          const smoothing = 0.15;
+          // 感度を調整（元の0.5より低めだが、反応性を確保）
+          const sensitivity = 0.35;
+          // スムージング係数（0.25 = 25%の変化を適用、75%は前の値を保持）
+          const smoothing = 0.25;
           
           const targetX = Math.max(-20, Math.min(20, beta * sensitivity));
           const targetY = Math.max(-20, Math.min(20, alpha * sensitivity));
@@ -122,7 +122,17 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           />
         );
       case "zenn":
-        return "Z";
+        return (
+          <img
+            src="/zenn.svg"
+            alt="Zenn"
+            style={{
+              width: "24px",
+              height: "24px",
+              objectFit: "contain",
+            }}
+          />
+        );
       default:
         return "?";
     }

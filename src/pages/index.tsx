@@ -246,7 +246,19 @@ export default function Home() {
                     <div style={previewLinksStyle}>
                       {profile.links.twitter && <span>𝕏</span>}
                       {profile.links.github && <span>⚡</span>}
-                      {profile.links.zenn && <span>Z</span>}
+                      {profile.links.zenn && (
+                        <img
+                          src="/zenn.svg"
+                          alt="Zenn"
+                          style={{
+                            width: "16px",
+                            height: "16px",
+                            objectFit: "contain",
+                            display: "inline-block",
+                            verticalAlign: "middle",
+                          }}
+                        />
+                      )}
                     </div>
                   </div>
                 </div>
