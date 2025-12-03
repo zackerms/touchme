@@ -61,16 +61,15 @@ export default function Home() {
       transition: "transform 0.2s ease, box-shadow 0.2s ease",
       transform: isHovered ? "translateY(-2px)" : "translateY(0)",
       boxShadow: isHovered
-        ? "0 4px 12px rgba(99, 102, 241, 0.4)"
-        : "none",
+        ? "0 6px 16px rgba(99, 102, 241, 0.3)"
+        : "0 2px 8px rgba(99, 102, 241, 0.2)",
     };
   };
 
   const emptyStateStyle: React.CSSProperties = {
     textAlign: "center",
     padding: "60px 20px",
-    color: "var(--foreground)",
-    opacity: 0.7,
+    color: "var(--text-secondary)",
   };
 
   const emptyStatePStyle: React.CSSProperties = {
@@ -87,12 +86,8 @@ export default function Home() {
   const getProfileItemStyle = (id: string): React.CSSProperties => {
     const isHovered = hoveredItem === id;
     return {
-      background: isHovered
-        ? "rgba(255, 255, 255, 0.08)"
-        : "rgba(255, 255, 255, 0.05)",
-      border: `1px solid ${
-        isHovered ? "rgba(255, 255, 255, 0.2)" : "rgba(255, 255, 255, 0.1)"
-      }`,
+      background: "var(--card-background)",
+      border: `1px solid ${isHovered ? "#d0d0d0" : "var(--card-border)"}`,
       borderRadius: "12px",
       padding: "16px",
       cursor: "pointer",
@@ -101,6 +96,9 @@ export default function Home() {
       justifyContent: "space-between",
       alignItems: "center",
       transform: isHovered ? "translateX(4px)" : "translateX(0)",
+      boxShadow: isHovered
+        ? "0 4px 12px rgba(0, 0, 0, 0.12)"
+        : "0 2px 6px rgba(0, 0, 0, 0.08)",
     };
   };
 
@@ -116,7 +114,7 @@ export default function Home() {
     height: "60px",
     borderRadius: "50%",
     objectFit: "cover",
-    border: "2px solid rgba(255, 255, 255, 0.2)",
+    border: "2px solid #e8e8e8",
   };
 
   const previewInfoH3Style: React.CSSProperties = {
@@ -129,7 +127,7 @@ export default function Home() {
     display: "flex",
     gap: "8px",
     fontSize: "14px",
-    opacity: 0.7,
+    color: "var(--text-secondary)",
   };
 
   const profileActionsStyle: React.CSSProperties = {
@@ -141,15 +139,15 @@ export default function Home() {
     const isHovered = hoveredButton === `edit-${profileId}`;
     return {
       padding: "8px 16px",
-      border: `1px solid rgba(59, 130, 246, 0.3)`,
+      border: "1px solid #3b82f6",
       borderRadius: "6px",
       fontSize: "14px",
       cursor: "pointer",
       transition: "all 0.2s ease",
       background: isHovered
-        ? "rgba(59, 130, 246, 0.3)"
-        : "rgba(59, 130, 246, 0.2)",
-      color: "#3b82f6",
+        ? "#3b82f6"
+        : "transparent",
+      color: isHovered ? "white" : "#3b82f6",
     };
   };
 
@@ -157,15 +155,15 @@ export default function Home() {
     const isHovered = hoveredButton === `delete-${profileId}`;
     return {
       padding: "8px 16px",
-      border: `1px solid rgba(239, 68, 68, 0.3)`,
+      border: "1px solid #ef4444",
       borderRadius: "6px",
       fontSize: "14px",
       cursor: "pointer",
       transition: "all 0.2s ease",
       background: isHovered
-        ? "rgba(239, 68, 68, 0.3)"
-        : "rgba(239, 68, 68, 0.2)",
-      color: "#ef4444",
+        ? "#ef4444"
+        : "transparent",
+      color: isHovered ? "white" : "#ef4444",
     };
   };
 

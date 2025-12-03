@@ -129,22 +129,22 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     flexDirection: "column",
     alignItems: "center",
     justifyContent: "center",
-    backdropFilter: "blur(10px)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
-    boxShadow: "0 8px 32px rgba(0, 0, 0, 0.3)",
+    background: "var(--card-background)",
+    border: "1px solid var(--card-border)",
+    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)",
   };
 
   const cardFrontStyle: React.CSSProperties = {
     ...cardFaceStyle,
-    background:
-      "linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(168, 85, 247, 0.1) 100%)",
+    background: "var(--card-background)",
+    backgroundImage: "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)",
   };
 
   const cardBackStyle: React.CSSProperties = {
     ...cardFaceStyle,
     transform: "rotateY(180deg)",
-    background:
-      "linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(16, 185, 129, 0.1) 100%)",
+    background: "var(--card-background)",
+    backgroundImage: "linear-gradient(135deg, #ffffff 0%, #fafafa 100%)",
   };
 
   const imageContainerStyle: React.CSSProperties = {
@@ -153,8 +153,8 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     borderRadius: "50%",
     overflow: "hidden",
     marginBottom: "20px",
-    border: "3px solid rgba(255, 255, 255, 0.2)",
-    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.3)",
+    border: "3px solid #e8e8e8",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
   };
 
   const profileImageStyle: React.CSSProperties = {
@@ -184,10 +184,10 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       width: "60px",
       height: "60px",
       borderRadius: "50%",
-      border: "2px solid rgba(255, 255, 255, 0.3)",
+      border: "2px solid #e0e0e0",
       background: isHovered
-        ? "rgba(255, 255, 255, 0.2)"
-        : "rgba(255, 255, 255, 0.1)",
+        ? "#f0f0f0"
+        : "#ffffff",
       color: "var(--foreground)",
       fontSize: "24px",
       cursor: "pointer",
@@ -195,7 +195,9 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
-      backdropFilter: "blur(5px)",
+      boxShadow: isHovered
+        ? "0 4px 12px rgba(0, 0, 0, 0.15)"
+        : "0 2px 6px rgba(0, 0, 0, 0.1)",
       transform: isHovered ? "scale(1.1)" : "scale(1)",
     };
   };
@@ -283,7 +285,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         <div style={cardBackStyle}>
           {flippedLink && (
             <div style={qrcodeWrapperStyle}>
-              <div style={{ background: "white", padding: "10px", borderRadius: "10px", boxShadow: "0 4px 20px rgba(0, 0, 0, 0.2)" }}>
+              <div style={{ background: "white", padding: "12px", borderRadius: "12px", boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)" }}>
                 <QRCodeDisplay value={flippedLink} size={180} />
               </div>
               <p style={qrcodeLabelStyle}>スキャンしてリンクを開く</p>
