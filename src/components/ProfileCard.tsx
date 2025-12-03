@@ -83,12 +83,22 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     }
   };
 
-  const getSNSIcon = (platform: string) => {
+  const getSNSIcon = (platform: string): string | React.ReactNode => {
     switch (platform) {
       case "twitter":
         return "𝕏";
       case "github":
-        return "⚡";
+        return (
+          <img
+            src="/github.svg"
+            alt="GitHub"
+            style={{
+              width: "24px",
+              height: "24px",
+              objectFit: "contain",
+            }}
+          />
+        );
       case "zenn":
         return "Z";
       default:
@@ -154,7 +164,6 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     overflow: "hidden",
     marginBottom: "20px",
     border: "3px solid #e8e8e8",
-    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
   };
 
   const profileImageStyle: React.CSSProperties = {
