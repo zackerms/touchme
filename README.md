@@ -1,40 +1,88 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/pages/api-reference/create-next-app).
+# Profile Card - エンジニア向けイベント用プロフィールサイト
 
-## Getting Started
+テックイベントで素早くプロフィールを紹介できる、3Dインタラクティブなプロフィールカードサイトです。
 
-First, run the development server:
+## 特徴
+
+- 📱 **スマホ最適化** - モバイル画面にピッタリフィット
+- 🎴 **3Dカード** - ジャイロセンサーで傾きに連動する立体的なカード
+- 🔄 **カードフリップ** - SNSアイコンタップでカードが回転、QRコード表示
+- 📊 **QRコード生成** - クライアントサイドで各SNSリンクのQRコード生成
+- 💾 **柔軟なストレージ** - localStorage → Firebase等への移行が容易な設計
+- 👥 **マルチユーザー対応** - 複数ユーザーが各自のプロフィールを登録可能
+
+## 技術スタック
+
+- Next.js (Pages Router)
+- React
+- CSS (素のCSS)
+- QRコード生成ライブラリ（qrcode.react）
+- ジャイロセンサー API
+
+## セットアップ
 
 ```bash
+# プロジェクト作成
+npx create-next-app@latest profile-card --use-npm
+cd profile-card
+
+# 依存関係インストール
+npm install qrcode.react
+
+# 開発サーバー起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## プロジェクト構造
 
-You can start editing the page by modifying `pages/index.tsx`. The page auto-updates as you edit the file.
+```
+profile-card/
+├── pages/
+│   ├── index.js          # ホーム/プロフィール一覧
+│   ├── edit.js           # プロフィール編集
+│   └── profile/[id].js   # プロフィール表示（3Dカード）
+├── components/
+│   ├── ProfileCard.js    # 3Dカードコンポーネント
+│   └── QRCodeDisplay.js  # QRコード表示コンポーネント
+├── lib/
+│   └── storage.js        # ストレージ抽象化層
+├── styles/
+│   └── globals.css
+└── public/
+```
 
-[API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) can be accessed on [http://localhost:3000/api/hello](http://localhost:3000/api/hello). This endpoint can be edited in `pages/api/hello.ts`.
+## 使い方
 
-The `pages/api` directory is mapped to `/api/*`. Files in this directory are treated as [API routes](https://nextjs.org/docs/pages/building-your-application/routing/api-routes) instead of React pages.
+1. `/edit` でプロフィール情報を入力
+   - 名前
+   - プロフィール画像URL
+   - SNSリンク（X, GitHub, Zenn等）
 
-This project uses [`next/font`](https://nextjs.org/docs/pages/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+2. `/profile/[id]` でプロフィールカードを表示
+   - スマホを傾けるとカードが3D的に動く
+   - SNSアイコンをタップするとカードが回転してQRコード表示
 
-## Learn More
+## ストレージ移行
 
-To learn more about Next.js, take a look at the following resources:
+現在は localStorage を使用していますが、`lib/storage.js` を変更するだけで Firebase や他のバックエンドに移行できます。
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn-pages-router) - an interactive Next.js tutorial.
+```javascript
+// lib/storage.js の実装を変更するだけ
+export const storage = {
+  saveProfile: async (profile) => {
+    // localStorage → Firebase に変更
+  },
+  // ...
+}
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 今後の拡張予定
 
-## Deploy on Vercel
+- [ ] Firebase/Supabase 対応
+- [ ] カスタムテーマ
+- [ ] 名刺交換機能
+- [ ] アクセス解析
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ライセンス
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/pages/building-your-application/deploying) for more details.
+MIT
