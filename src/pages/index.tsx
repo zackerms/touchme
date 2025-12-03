@@ -5,12 +5,14 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import { storage } from "@/lib/storage";
 import type { Profile } from "@/types/profile";
+import QRCodeDisplay from "@/components/QRCodeDisplay";
 
 export default function Home() {
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
+  const [siteUrl, setSiteUrl] = useState<string>("");
   const router = useRouter();
 
   useEffect(() => {
@@ -26,6 +28,12 @@ export default function Home() {
       }
     };
     loadProfiles();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      setSiteUrl(window.location.origin);
+    }
   }, []);
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
@@ -63,6 +71,24 @@ export default function Home() {
   const headerH1Style: React.CSSProperties = {
     fontSize: "32px",
     color: "var(--foreground)",
+  };
+
+  const qrCodeSectionStyle: React.CSSProperties = {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    marginBottom: "30px",
+    padding: "20px",
+    background: "var(--card-background)",
+    borderRadius: "12px",
+    border: "1px solid var(--card-border)",
+  };
+
+  const qrCodeTitleStyle: React.CSSProperties = {
+    fontSize: "18px",
+    color: "var(--foreground)",
+    marginBottom: "12px",
+    fontWeight: "bold",
   };
 
   const getCreateButtonStyle = (): React.CSSProperties => {
@@ -205,6 +231,12 @@ export default function Home() {
             + 新規作成
           </button>
         </div>
+        {siteUrl && (
+          <div style={qrCodeSectionStyle}>
+            <div style={qrCodeTitleStyle}>みんなに使ってもらおう！</div>
+            <QRCodeDisplay value={siteUrl} size={180} />
+          </div>
+        )}
         {isLoading ? (
           <div style={emptyStateStyle}>
             <p style={emptyStatePStyle}>読み込み中...</p>
