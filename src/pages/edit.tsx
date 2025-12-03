@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/router";
 import Head from "next/head";
 import { storage } from "@/lib/storage";
@@ -16,8 +16,10 @@ export default function Edit() {
     links: {},
   });
   const [isLoading, setIsLoading] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (router.isReady) {
@@ -59,6 +61,57 @@ export default function Edit() {
       setProfile({ ...profile, links: value as Profile["links"] });
     } else {
       setProfile({ ...profile, [field]: value });
+    }
+  };
+
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // ファイルサイズチェック（4.5MB制限）
+    const maxSize = 4.5 * 1024 * 1024; // 4.5MB in bytes
+    if (file.size > maxSize) {
+      alert("ファイルサイズが大きすぎます。4.5MB以下のファイルを選択してください。");
+      e.target.value = "";
+      return;
+    }
+
+    // 画像形式チェック
+    const allowedTypes = ["image/jpeg", "image/png", "image/webp"];
+    if (!allowedTypes.includes(file.type)) {
+      alert("JPEG、PNG、またはWebP形式の画像を選択してください。");
+      e.target.value = "";
+      return;
+    }
+
+    setIsUploading(true);
+
+    try {
+      const response = await fetch(
+        `/api/avatar/upload?filename=${encodeURIComponent(file.name)}`,
+        {
+          method: "POST",
+          body: file,
+        }
+      );
+
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || "アップロードに失敗しました");
+      }
+
+      const blob = await response.json();
+      setProfile({ ...profile, imageUrl: blob.url });
+    } catch (error) {
+      console.error("Upload error:", error);
+      alert(
+        error instanceof Error
+          ? error.message
+          : "画像のアップロードに失敗しました"
+      );
+    } finally {
+      setIsUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -124,6 +177,50 @@ export default function Edit() {
       fontSize: "16px",
       boxSizing: "border-box",
       outline: "none",
+    };
+  };
+
+  const imageUploadSectionStyle: React.CSSProperties = {
+    marginBottom: "16px",
+  };
+
+  const fileInputWrapperStyle: React.CSSProperties = {
+    position: "relative",
+    display: "inline-block",
+    width: "100%",
+  };
+
+  const fileInputStyle: React.CSSProperties = {
+    position: "absolute",
+    width: "0.1px",
+    height: "0.1px",
+    opacity: 0,
+    overflow: "hidden",
+    zIndex: -1,
+  };
+
+  const getUploadButtonStyle = (): React.CSSProperties => {
+    const isHovered = hoveredButton === "upload";
+    return {
+      padding: "12px 24px",
+      border: "1px solid rgba(255, 255, 255, 0.2)",
+      borderRadius: "8px",
+      fontSize: "16px",
+      fontWeight: "bold",
+      cursor: isUploading ? "not-allowed" : "pointer",
+      transition: "all 0.2s ease",
+      background: isUploading
+        ? "rgba(255, 255, 255, 0.1)"
+        : isHovered
+          ? "rgba(255, 255, 255, 0.15)"
+          : "rgba(255, 255, 255, 0.1)",
+      color: "var(--foreground)",
+      opacity: isUploading ? 0.6 : 1,
+      width: "100%",
+      display: "flex",
+      alignItems: "center",
+      justifyContent: "center",
+      gap: "8px",
     };
   };
 
@@ -238,18 +335,56 @@ export default function Edit() {
 
             <div style={formGroupStyle}>
               <label htmlFor="imageUrl" style={formGroupLabelStyle}>
-                プロフィール画像URL
+                プロフィール画像
               </label>
-              <input
-                id="imageUrl"
-                type="url"
-                value={profile.imageUrl}
-                onChange={(e) => handleChange("imageUrl", e.target.value)}
-                onFocus={() => setFocusedInput("imageUrl")}
-                onBlur={() => setFocusedInput(null)}
-                placeholder="https://example.com/image.jpg"
-                style={getInputStyle("imageUrl")}
-              />
+              <div style={imageUploadSectionStyle}>
+                <div style={fileInputWrapperStyle}>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/jpeg, image/png, image/webp"
+                    onChange={handleFileSelect}
+                    disabled={isUploading}
+                    style={fileInputStyle}
+                    id="file-upload"
+                  />
+                  <label
+                    htmlFor="file-upload"
+                    style={getUploadButtonStyle()}
+                    onMouseEnter={() => !isUploading && setHoveredButton("upload")}
+                    onMouseLeave={() => setHoveredButton(null)}
+                  >
+                    {isUploading ? (
+                      <>
+                        <span>アップロード中...</span>
+                      </>
+                    ) : (
+                      <>
+                        <span>📷</span>
+                        <span>画像をアップロード</span>
+                      </>
+                    )}
+                  </label>
+                </div>
+              </div>
+              <div style={{ marginTop: "16px", marginBottom: "8px" }}>
+                <label
+                  htmlFor="imageUrl"
+                  style={{ ...formGroupLabelStyle, fontSize: "12px", opacity: 0.8 }}
+                >
+                  または、画像URLを直接入力
+                </label>
+                <input
+                  id="imageUrl"
+                  type="url"
+                  value={profile.imageUrl}
+                  onChange={(e) => handleChange("imageUrl", e.target.value)}
+                  onFocus={() => setFocusedInput("imageUrl")}
+                  onBlur={() => setFocusedInput(null)}
+                  placeholder="https://example.com/image.jpg"
+                  style={getInputStyle("imageUrl")}
+                />
+              </div>
               {profile.imageUrl && (
                 <div style={imagePreviewStyle}>
                   <img
