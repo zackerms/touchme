@@ -143,10 +143,11 @@ export default function Edit() {
   };
 
   const editFormStyle: React.CSSProperties = {
-    background: "rgba(255, 255, 255, 0.05)",
-    border: "1px solid rgba(255, 255, 255, 0.1)",
+    background: "rgba(255, 255, 255, 0.95)",
+    border: "1px solid rgba(0, 0, 0, 0.1)",
     borderRadius: "12px",
     padding: "30px",
+    boxShadow: "0 4px 20px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.05)",
   };
 
   const formGroupStyle: React.CSSProperties = {
@@ -203,24 +204,26 @@ export default function Edit() {
     const isHovered = hoveredButton === "upload";
     return {
       padding: "12px 24px",
-      border: "1px solid rgba(255, 255, 255, 0.2)",
+      border: "none",
       borderRadius: "8px",
       fontSize: "16px",
       fontWeight: "bold",
       cursor: isUploading ? "not-allowed" : "pointer",
       transition: "all 0.2s ease",
       background: isUploading
-        ? "rgba(255, 255, 255, 0.1)"
-        : isHovered
-          ? "rgba(255, 255, 255, 0.15)"
-          : "rgba(255, 255, 255, 0.1)",
-      color: "var(--foreground)",
+        ? "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)"
+        : "linear-gradient(135deg, #3b82f6 0%, #2563eb 100%)",
+      color: "white",
       opacity: isUploading ? 0.6 : 1,
       width: "100%",
       display: "flex",
       alignItems: "center",
       justifyContent: "center",
       gap: "8px",
+      transform: isHovered && !isUploading ? "translateY(-2px)" : "translateY(0)",
+      boxShadow: isHovered && !isUploading
+        ? "0 4px 12px rgba(59, 130, 246, 0.4)"
+        : "0 2px 8px rgba(59, 130, 246, 0.2)",
     };
   };
 
