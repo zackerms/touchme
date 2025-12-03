@@ -131,7 +131,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     justifyContent: "center",
     background: "var(--card-background)",
     border: "1px solid var(--card-border)",
-    boxShadow: "0 10px 40px rgba(0, 0, 0, 0.15), 0 2px 8px rgba(0, 0, 0, 0.1)",
+    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 30px rgba(0, 0, 0, 0.06), 0 2px 10px rgba(0, 0, 0, 0.04)",
   };
 
   const cardFrontStyle: React.CSSProperties = {
@@ -154,7 +154,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     overflow: "hidden",
     marginBottom: "20px",
     border: "3px solid #e8e8e8",
-    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
+    boxShadow: "0 8px 24px rgba(0, 0, 0, 0.1), 0 2px 8px rgba(0, 0, 0, 0.06), inset 0 1px 2px rgba(255, 255, 255, 0.8)",
   };
 
   const profileImageStyle: React.CSSProperties = {
