@@ -162,7 +162,7 @@ export default function Edit() {
     const isHovered = hoveredButton === "cancel";
     return {
       padding: "12px 24px",
-      border: "none",
+      border: "1px solid rgba(255, 255, 255, 0.2)",
       borderRadius: "8px",
       fontSize: "16px",
       fontWeight: "bold",
@@ -172,7 +172,6 @@ export default function Edit() {
         ? "rgba(255, 255, 255, 0.15)"
         : "rgba(255, 255, 255, 0.1)",
       color: "var(--foreground)",
-      border: "1px solid rgba(255, 255, 255, 0.2)",
     };
   };
 

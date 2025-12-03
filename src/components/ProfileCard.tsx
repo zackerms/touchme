@@ -40,7 +40,12 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
   }, [gyroEnabled]);
 
   const handleCardClick = () => {
-    if (!gyroEnabled) {
+    if (isFlipped) {
+      // QRコード表示中にカードをタップしたら表面に戻る
+      setIsFlipped(false);
+      setFlippedLink(null);
+    } else if (!gyroEnabled) {
+      // ジャイロを有効にする
       setGyroEnabled(true);
     }
   };
