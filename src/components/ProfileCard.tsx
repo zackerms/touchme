@@ -17,6 +17,43 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
   const cardRef = useRef<HTMLDivElement>(null);
   const currentRotationRef = useRef({ x: 0, y: 0 });
 
+  // ジャイロセンサーの自動有効化
+  useEffect(() => {
+    // デバイス検出
+    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
+    const hasDeviceMotion = typeof DeviceMotionEvent !== 'undefined';
+    
+    if (!isTouchDevice || !hasDeviceMotion) {
+      // デスクトップまたは非対応デバイス
+      console.log('ジャイロ非対応デバイス');
+      return;
+    }
+
+    // iOS 13+ の許可リクエスト
+    const requestPermission = async () => {
+      if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+        // iOS Safari
+        try {
+          const permission = await (DeviceMotionEvent as any).requestPermission();
+          if (permission === 'granted') {
+            console.log('ジャイロ許可が得られました');
+            setGyroEnabled(true);
+          } else {
+            console.log('ジャイロ許可が拒否されました');
+          }
+        } catch (error) {
+          console.error('ジャイロ許可リクエストエラー:', error);
+        }
+      } else {
+        // Android または iOS 12以下（許可不要）
+        console.log('ジャイロ自動有効化（Android/iOS 12以下）');
+        setGyroEnabled(true);
+      }
+    };
+
+    requestPermission();
+  }, []);
+
   useEffect(() => {
     if (!gyroEnabled) {
       return;
@@ -29,7 +66,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           // 感度を調整（元の0.5より低めだが、反応性を確保）
           const sensitivity = 0.35;
           // スムージング係数（0.25 = 25%の変化を適用、75%は前の値を保持）
-          const smoothing = 0.25;
+          const smoothing = 0.1;
           
           const targetX = Math.max(-20, Math.min(20, beta * sensitivity));
           const targetY = Math.max(-20, Math.min(20, alpha * sensitivity));
@@ -38,8 +75,18 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           const smoothedX = currentRotationRef.current.x * (1 - smoothing) + targetX * smoothing;
           const smoothedY = currentRotationRef.current.y * (1 - smoothing) + targetY * smoothing;
           
+          // デバッグログ（開発時のみ）
+          if (process.env.NODE_ENV === 'development') {
+            console.log('ジャイロイベント:', { alpha, beta, smoothedX, smoothedY });
+          }
+          
           currentRotationRef.current = { x: smoothedX, y: smoothedY };
           setRotation({ x: smoothedX, y: smoothedY });
+        }
+      } else {
+        // rotationRateが存在しない場合のデバッグログ
+        if (process.env.NODE_ENV === 'development') {
+          console.warn('ジャイロイベント: rotationRateが存在しません', event);
         }
       }
     };
