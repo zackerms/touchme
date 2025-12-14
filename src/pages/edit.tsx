@@ -26,6 +26,13 @@ export default function Edit() {
       if (router.isReady) {
         if (id && typeof id === "string") {
           try {
+            // 既存プロフィールの編集時は作成者チェック
+            if (!storage.isMyProfile(id)) {
+              alert("このプロフィールを編集する権限がありません");
+              router.push("/");
+              return;
+            }
+
             const existing = await storage.getProfile(id);
             if (existing) {
               setProfile(existing);
@@ -39,6 +46,7 @@ export default function Edit() {
             router.push("/");
           }
         } else {
+          // 新規作成時
           setProfile({
             id: storage.generateId(),
             name: "",
@@ -59,7 +67,14 @@ export default function Edit() {
       return;
     }
     try {
+      const isNewProfile = !id;
       await storage.saveProfile(profile);
+      
+      // 新規作成時は作成者IDとして保存
+      if (isNewProfile) {
+        storage.addMyProfileId(profile.id);
+      }
+      
       router.push(`/profile/${profile.id}`);
     } catch (error) {
       console.error("Failed to save profile:", error);
