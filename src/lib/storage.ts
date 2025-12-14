@@ -103,6 +103,46 @@ class StorageAdapter {
   generateId(): string {
     return `${Date.now()}-${Math.random().toString(36).substring(2, 9)}`;
   }
+
+  // 作成者ID管理機能
+  getMyProfileIds(): string[] {
+    if (typeof window === "undefined") return [];
+    try {
+      const ids = localStorage.getItem("myProfileIds");
+      return ids ? JSON.parse(ids) : [];
+    } catch (error) {
+      console.error("Failed to get myProfileIds from localStorage:", error);
+      return [];
+    }
+  }
+
+  addMyProfileId(id: string): void {
+    if (typeof window === "undefined") return;
+    try {
+      const ids = this.getMyProfileIds();
+      if (!ids.includes(id)) {
+        ids.push(id);
+        localStorage.setItem("myProfileIds", JSON.stringify(ids));
+      }
+    } catch (error) {
+      console.error("Failed to add myProfileId to localStorage:", error);
+    }
+  }
+
+  removeMyProfileId(id: string): void {
+    if (typeof window === "undefined") return;
+    try {
+      const ids = this.getMyProfileIds();
+      const filtered = ids.filter((profileId) => profileId !== id);
+      localStorage.setItem("myProfileIds", JSON.stringify(filtered));
+    } catch (error) {
+      console.error("Failed to remove myProfileId from localStorage:", error);
+    }
+  }
+
+  isMyProfile(id: string): boolean {
+    return this.getMyProfileIds().includes(id);
+  }
 }
 
 export const storage = new StorageAdapter();

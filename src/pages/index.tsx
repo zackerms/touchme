@@ -13,6 +13,7 @@ export default function Home() {
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [siteUrl, setSiteUrl] = useState<string>("");
+  const [myProfileIds, setMyProfileIds] = useState<string[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -20,6 +21,8 @@ export default function Home() {
       try {
         const data = await storage.getProfiles();
         setProfiles(data);
+        // 自分のプロフィールIDを取得
+        setMyProfileIds(storage.getMyProfileIds());
       } catch (error) {
         console.error("Failed to load profiles:", error);
         alert("プロフィールの読み込みに失敗しました");
@@ -38,11 +41,21 @@ export default function Home() {
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
+    
+    // 作成者チェック
+    if (!storage.isMyProfile(id)) {
+      alert("このプロフィールを削除する権限がありません");
+      return;
+    }
+    
     if (confirm("このプロフィールを削除しますか？")) {
       try {
         await storage.deleteProfile(id);
+        // localStorageからも削除
+        storage.removeMyProfileId(id);
         const data = await storage.getProfiles();
         setProfiles(data);
+        setMyProfileIds(storage.getMyProfileIds());
       } catch (error) {
         console.error("Failed to delete profile:", error);
         alert("プロフィールの削除に失敗しました");
@@ -167,6 +180,18 @@ export default function Home() {
     marginBottom: "4px",
   };
 
+  const myProfileBadgeStyle: React.CSSProperties = {
+    display: "inline-block",
+    backgroundColor: "#10b981",
+    color: "white",
+    fontSize: "11px",
+    fontWeight: "bold",
+    padding: "2px 8px",
+    borderRadius: "4px",
+    marginLeft: "8px",
+    verticalAlign: "middle",
+  };
+
   const previewLinksStyle: React.CSSProperties = {
     display: "flex",
     gap: "8px",
@@ -274,7 +299,12 @@ export default function Home() {
                     }}
                   />
                   <div>
-                    <h3 style={previewInfoH3Style}>{profile.name}</h3>
+                    <h3 style={previewInfoH3Style}>
+                      {profile.name}
+                      {myProfileIds.includes(profile.id) && (
+                        <span style={myProfileBadgeStyle}>あなた</span>
+                      )}
+                    </h3>
                     <div style={previewLinksStyle}>
                       {profile.links.twitter && <span>𝕏</span>}
                       {profile.links.github && <span>⚡</span>}
@@ -294,29 +324,31 @@ export default function Home() {
                     </div>
                   </div>
                 </div>
-                <div style={profileActionsStyle}>
-                  <button
-                    style={getEditButtonStyle(profile.id)}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      router.push(`/edit?id=${profile.id}`);
-                    }}
-                    onMouseEnter={() => setHoveredButton(`edit-${profile.id}`)}
-                    onMouseLeave={() => setHoveredButton(null)}
-                  >
-                    編集
-                  </button>
-                  <button
-                    style={getDeleteButtonStyle(profile.id)}
-                    onClick={(e) => handleDelete(profile.id, e)}
-                    onMouseEnter={() =>
-                      setHoveredButton(`delete-${profile.id}`)
-                    }
-                    onMouseLeave={() => setHoveredButton(null)}
-                  >
-                    削除
-                  </button>
-                </div>
+                {myProfileIds.includes(profile.id) && (
+                  <div style={profileActionsStyle}>
+                    <button
+                      style={getEditButtonStyle(profile.id)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        router.push(`/edit?id=${profile.id}`);
+                      }}
+                      onMouseEnter={() => setHoveredButton(`edit-${profile.id}`)}
+                      onMouseLeave={() => setHoveredButton(null)}
+                    >
+                      編集
+                    </button>
+                    <button
+                      style={getDeleteButtonStyle(profile.id)}
+                      onClick={(e) => handleDelete(profile.id, e)}
+                      onMouseEnter={() =>
+                        setHoveredButton(`delete-${profile.id}`)
+                      }
+                      onMouseLeave={() => setHoveredButton(null)}
+                    >
+                      削除
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
           </div>
