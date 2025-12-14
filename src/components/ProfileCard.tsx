@@ -69,15 +69,15 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
     const handleDeviceMotion = (event: DeviceMotionEvent) => {
       if (event.rotationRate) {
-        const { alpha, beta } = event.rotationRate;
-        if (alpha !== null && beta !== null) {
+        const { beta, gamma } = event.rotationRate;
+        if (beta !== null && gamma !== null) {
           // 感度を調整（元の0.5より低めだが、反応性を確保）
           const sensitivity = 0.35;
           // スムージング係数（0.25 = 25%の変化を適用、75%は前の値を保持）
           const smoothing = 0.1;
           
           const targetX = Math.max(-20, Math.min(20, beta * sensitivity));
-          const targetY = Math.max(-20, Math.min(20, alpha * sensitivity));
+          const targetY = Math.max(-20, Math.min(20, gamma * sensitivity));
           
           // 前の値と現在の値をブレンドしてスムーズに
           const smoothedX = currentRotationRef.current.x * (1 - smoothing) + targetX * smoothing;
@@ -85,7 +85,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           
           // デバッグログ（開発時のみ）
           if (process.env.NODE_ENV === 'development') {
-            console.log('ジャイロイベント:', { alpha, beta, smoothedX, smoothedY });
+            console.log('ジャイロイベント:', { beta, gamma, smoothedX, smoothedY });
           }
           
           currentRotationRef.current = { x: smoothedX, y: smoothedY };
