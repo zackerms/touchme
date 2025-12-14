@@ -22,8 +22,8 @@ export function useGyroscope(
   options: UseGyroscopeOptions = {}
 ): UseGyroscopeReturn {
   const {
-    sensitivity = 0.35,
-    smoothing = 0.1,
+    sensitivity = 0.5,
+    smoothing = 0.15,
     maxRotation = 20,
   } = options;
 
@@ -36,9 +36,9 @@ export function useGyroscope(
     // デバイス検出
     const isTouchDevice =
       "ontouchstart" in window || navigator.maxTouchPoints > 0;
-    const hasDeviceMotion = typeof DeviceMotionEvent !== "undefined";
+    const hasDeviceOrientation = typeof DeviceOrientationEvent !== "undefined";
 
-    if (!isTouchDevice || !hasDeviceMotion) {
+    if (!isTouchDevice || !hasDeviceOrientation) {
       // デスクトップまたは非対応デバイス
       console.log("ジャイロ非対応デバイス");
       return;
@@ -46,10 +46,10 @@ export function useGyroscope(
 
     // iOS 13+ の許可リクエスト
     const requestPermission = async () => {
-      if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
+      if (typeof (DeviceOrientationEvent as any).requestPermission === "function") {
         // iOS Safari
         try {
-          const permission = await (DeviceMotionEvent as any).requestPermission();
+          const permission = await (DeviceOrientationEvent as any).requestPermission();
           if (permission === "granted") {
             console.log("ジャイロ許可が得られました");
             setGyroEnabled(true);
@@ -69,57 +69,55 @@ export function useGyroscope(
     requestPermission();
   }, []);
 
-  // デバイスモーションイベントのリスニング
+  // デバイスオリエンテーションイベントのリスニング
   useEffect(() => {
     if (!gyroEnabled) {
       return;
     }
 
-    const handleDeviceMotion = (event: DeviceMotionEvent) => {
-      if (event.rotationRate) {
-        const { beta, gamma } = event.rotationRate;
-        if (beta !== null && gamma !== null) {
-          const targetX = Math.max(
-            -maxRotation,
-            Math.min(maxRotation, beta * sensitivity)
-          );
-          const targetY = Math.max(
-            -maxRotation,
-            Math.min(maxRotation, gamma * sensitivity)
-          );
+    const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
+      const beta = event.beta; // 前後の傾き（-180〜180度）
+      const gamma = event.gamma; // 左右の傾き（-90〜90度）
 
-          // 前の値と現在の値をブレンドしてスムーズに
-          const smoothedX =
-            currentRotationRef.current.x * (1 - smoothing) +
-            targetX * smoothing;
-          const smoothedY =
-            currentRotationRef.current.y * (1 - smoothing) +
-            targetY * smoothing;
+      if (beta !== null && gamma !== null) {
+        // betaとgammaは角度なので、sensitivityで調整
+        // beta: 前後の傾き → rotateX
+        // gamma: 左右の傾き → rotateY
+        const targetX = Math.max(
+          -maxRotation,
+          Math.min(maxRotation, beta * sensitivity)
+        );
+        const targetY = Math.max(
+          -maxRotation,
+          Math.min(maxRotation, gamma * sensitivity)
+        );
 
-          // デバッグログ（開発時のみ）
-          if (process.env.NODE_ENV === "development") {
-            console.log("ジャイロイベント:", {
-              beta,
-              gamma,
-              smoothedX,
-              smoothedY,
-            });
-          }
+        // 前の値と現在の値をブレンドしてスムーズに
+        const smoothedX =
+          currentRotationRef.current.x * (1 - smoothing) +
+          targetX * smoothing;
+        const smoothedY =
+          currentRotationRef.current.y * (1 - smoothing) +
+          targetY * smoothing;
 
-          currentRotationRef.current = { x: smoothedX, y: smoothedY };
-          setRotation({ x: smoothedX, y: smoothedY });
-        }
-      } else {
-        // rotationRateが存在しない場合のデバッグログ
+        // デバッグログ（開発時のみ）
         if (process.env.NODE_ENV === "development") {
-          console.warn("ジャイロイベント: rotationRateが存在しません", event);
+          console.log("ジャイロイベント:", {
+            beta,
+            gamma,
+            smoothedX,
+            smoothedY,
+          });
         }
+
+        currentRotationRef.current = { x: smoothedX, y: smoothedY };
+        setRotation({ x: smoothedX, y: smoothedY });
       }
     };
 
-    window.addEventListener("devicemotion", handleDeviceMotion);
+    window.addEventListener("deviceorientation", handleDeviceOrientation);
     return () => {
-      window.removeEventListener("devicemotion", handleDeviceMotion);
+      window.removeEventListener("deviceorientation", handleDeviceOrientation);
     };
   }, [gyroEnabled, sensitivity, smoothing, maxRotation]);
 
