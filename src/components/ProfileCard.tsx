@@ -11,11 +11,19 @@ interface ProfileCardProps {
 export default function ProfileCard({ profile }: ProfileCardProps) {
   const [rotation, setRotation] = useState({ x: 0, y: 0 });
   const [isFlipped, setIsFlipped] = useState(false);
-  const [flippedLink, setFlippedLink] = useState<string | null>(null);
+  const [profileUrl, setProfileUrl] = useState<string>("");
   const [gyroEnabled, setGyroEnabled] = useState(false);
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const cardRef = useRef<HTMLDivElement>(null);
   const currentRotationRef = useRef({ x: 0, y: 0 });
+
+  // プロフィールURLを生成
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const url = `${window.location.origin}/profile/${profile.id}`;
+      setProfileUrl(url);
+    }
+  }, [profile.id]);
 
   // ジャイロセンサーの自動有効化
   useEffect(() => {
@@ -97,37 +105,15 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     };
   }, [gyroEnabled]);
 
-  const getFirstSNSLink = (): string | null => {
-    if (profile.links.twitter) return profile.links.twitter;
-    if (profile.links.github) return profile.links.github;
-    if (profile.links.zenn) return profile.links.zenn;
-    return null;
-  };
-
   const handleCardClick = () => {
-    if (isFlipped) {
-      // QRコード表示中にカードをタップしたら表面に戻る
-      setIsFlipped(false);
-      setFlippedLink(null);
-    } else {
-      // カードが表面のとき: 最初のSNSリンクがあれば、そのURLでQRコードを表示して裏返す
-      const firstLink = getFirstSNSLink();
-      if (firstLink) {
-        setFlippedLink(firstLink);
-        setIsFlipped(true);
-      }
-    }
+    // カードをクリックしたら、QRコード表示/非表示を切り替え
+    setIsFlipped(!isFlipped);
   };
 
   const handleSNSIconClick = (e: React.MouseEvent, link: string) => {
     e.stopPropagation();
-    if (isFlipped && flippedLink === link) {
-      setIsFlipped(false);
-      setFlippedLink(null);
-    } else {
-      setFlippedLink(link);
-      setIsFlipped(true);
-    }
+    // 新しいタブでSNSページを開く
+    window.open(link, "_blank", "noopener,noreferrer");
   };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -371,12 +357,12 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           </div>
         </div>
         <div style={cardBackStyle}>
-          {flippedLink && (
+          {profileUrl && (
             <div style={qrcodeWrapperStyle}>
               <div style={{ background: "white", padding: "12px", borderRadius: "12px", boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)" }}>
-                <QRCodeDisplay value={flippedLink} size={180} />
+                <QRCodeDisplay value={profileUrl} size={180} />
               </div>
-              <p style={qrcodeLabelStyle}>スキャンしてリンクを開く</p>
+              <p style={qrcodeLabelStyle}>プロフィールページを開く</p>
             </div>
           )}
         </div>
