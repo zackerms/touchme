@@ -30,6 +30,7 @@ export function useGyroscope(
   const [rotation, setRotation] = useState<GyroscopeRotation>({ x: 0, y: 0 });
   const [gyroEnabled, setGyroEnabled] = useState(false);
   const currentRotationRef = useRef({ x: 0, y: 0 });
+  const currentGamma = useRef<number>(0); // 左右の絶対角度
 
   // ジャイロセンサーの自動有効化
   useEffect(() => {
@@ -37,20 +38,23 @@ export function useGyroscope(
     const isTouchDevice =
       "ontouchstart" in window || navigator.maxTouchPoints > 0;
     const hasDeviceOrientation = typeof DeviceOrientationEvent !== "undefined";
+    const hasDeviceMotion = typeof DeviceMotionEvent !== "undefined";
 
-    if (!isTouchDevice || !hasDeviceOrientation) {
+    if (!isTouchDevice || !hasDeviceOrientation || !hasDeviceMotion) {
       // デスクトップまたは非対応デバイス
       console.log("ジャイロ非対応デバイス");
       return;
     }
 
-    // iOS 13+ の許可リクエスト
+    // iOS 13+ の許可リクエスト（両方のイベントに対して）
     const requestPermission = async () => {
       if (typeof (DeviceOrientationEvent as any).requestPermission === "function") {
         // iOS Safari
         try {
-          const permission = await (DeviceOrientationEvent as any).requestPermission();
-          if (permission === "granted") {
+          const orientationPermission = await (DeviceOrientationEvent as any).requestPermission();
+          const motionPermission = await (DeviceMotionEvent as any).requestPermission();
+          
+          if (orientationPermission === "granted" && motionPermission === "granted") {
             console.log("ジャイロ許可が得られました");
             setGyroEnabled(true);
           } else {
@@ -69,49 +73,46 @@ export function useGyroscope(
     requestPermission();
   }, []);
 
-  // デバイスオリエンテーションイベントのリスニング
+  // デバイスオリエンテーションイベント：左右の傾き（絶対角度）
   useEffect(() => {
     if (!gyroEnabled) {
       return;
     }
 
     const handleDeviceOrientation = (event: DeviceOrientationEvent) => {
-      const beta = event.beta; // 前後の傾き（-180〜180度）
       const gamma = event.gamma; // 左右の傾き（-90〜90度）
 
-      if (beta !== null && gamma !== null) {
-        // betaとgammaは角度なので、sensitivityで調整
-        // beta: 前後の傾き → rotateX
+      if (gamma !== null) {
+        currentGamma.current = gamma;
+        
         // gamma: 左右の傾き → rotateY
-        const targetX = Math.max(
-          -maxRotation,
-          Math.min(maxRotation, beta * sensitivity)
-        );
         const targetY = Math.max(
           -maxRotation,
           Math.min(maxRotation, gamma * sensitivity)
         );
 
         // 前の値と現在の値をブレンドしてスムーズに
-        const smoothedX =
-          currentRotationRef.current.x * (1 - smoothing) +
-          targetX * smoothing;
         const smoothedY =
           currentRotationRef.current.y * (1 - smoothing) +
           targetY * smoothing;
 
+        currentRotationRef.current = { 
+          x: currentRotationRef.current.x, 
+          y: smoothedY 
+        };
+        setRotation({ 
+          x: currentRotationRef.current.x, 
+          y: smoothedY 
+        });
+
         // デバッグログ（開発時のみ）
         if (process.env.NODE_ENV === "development") {
-          console.log("ジャイロイベント:", {
-            beta,
+          console.log("オリエンテーション:", {
             gamma,
-            smoothedX,
+            targetY,
             smoothedY,
           });
         }
-
-        currentRotationRef.current = { x: smoothedX, y: smoothedY };
-        setRotation({ x: smoothedX, y: smoothedY });
       }
     };
 
@@ -120,6 +121,54 @@ export function useGyroscope(
       window.removeEventListener("deviceorientation", handleDeviceOrientation);
     };
   }, [gyroEnabled, sensitivity, smoothing, maxRotation]);
+
+  // デバイスモーションイベント：前後の勢い（角速度）
+  useEffect(() => {
+    if (!gyroEnabled) {
+      return;
+    }
+
+    // 減衰係数（自然に0に戻る速度）
+    const decay = 0.92;
+
+    const handleDeviceMotion = (event: DeviceMotionEvent) => {
+      if (event.rotationRate) {
+        const beta = event.rotationRate.beta; // 前後の角速度
+
+        if (beta !== null) {
+          // 角速度に基づいた回転値の変化（勢いだけを取得）
+          const velocityX = beta * sensitivity * 0.3;
+          
+          // 現在の回転に勢いを加えて、減衰させる
+          const newX = currentRotationRef.current.x * decay + velocityX;
+          const clampedX = Math.max(-maxRotation, Math.min(maxRotation, newX));
+
+          currentRotationRef.current = { 
+            x: clampedX, 
+            y: currentRotationRef.current.y 
+          };
+          setRotation({ 
+            x: clampedX, 
+            y: currentRotationRef.current.y 
+          });
+
+          // デバッグログ（開発時のみ）
+          if (process.env.NODE_ENV === "development") {
+            console.log("モーション:", {
+              beta,
+              velocityX,
+              clampedX,
+            });
+          }
+        }
+      }
+    };
+
+    window.addEventListener("devicemotion", handleDeviceMotion);
+    return () => {
+      window.removeEventListener("devicemotion", handleDeviceMotion);
+    };
+  }, [gyroEnabled, sensitivity, maxRotation]);
 
   // 手動でrotationを設定する関数（マウスムーブ用）
   const setRotationManual = useCallback(
