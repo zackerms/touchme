@@ -69,12 +69,12 @@ export default function Edit() {
     try {
       const isNewProfile = !id;
       await storage.saveProfile(profile);
-      
+
       // 新規作成時は作成者IDとして保存
       if (isNewProfile) {
         storage.addMyProfileId(profile.id);
       }
-      
+
       router.push(`/profile/${profile.id}`);
     } catch (error) {
       console.error("Failed to save profile:", error);
@@ -84,7 +84,7 @@ export default function Edit() {
 
   const handleChange = (
     field: keyof Profile | "links",
-    value: string | Profile["links"]
+    value: string | Profile["links"],
   ) => {
     if (field === "links") {
       setProfile({ ...profile, links: value as Profile["links"] });
@@ -100,7 +100,9 @@ export default function Edit() {
     // ファイルサイズチェック（4.5MB制限）
     const maxSize = 4.5 * 1024 * 1024; // 4.5MB in bytes
     if (file.size > maxSize) {
-      alert("ファイルサイズが大きすぎます。4.5MB以下のファイルを選択してください。");
+      alert(
+        "ファイルサイズが大きすぎます。4.5MB以下のファイルを選択してください。",
+      );
       e.target.value = "";
       return;
     }
@@ -121,7 +123,7 @@ export default function Edit() {
         {
           method: "POST",
           body: file,
-        }
+        },
       );
 
       if (!response.ok) {
@@ -136,7 +138,7 @@ export default function Edit() {
       alert(
         error instanceof Error
           ? error.message
-          : "画像のアップロードに失敗しました"
+          : "画像のアップロードに失敗しました",
       );
     } finally {
       setIsUploading(false);
@@ -196,12 +198,8 @@ export default function Edit() {
     return {
       width: "100%",
       padding: "12px",
-      background: isFocused
-        ? "rgba(0, 0, 0, 0.04)"
-        : "rgba(0, 0, 0, 0.02)",
-      border: `1px solid ${
-        isFocused ? "#6366f1" : "rgba(0, 0, 0, 0.1)"
-      }`,
+      background: isFocused ? "rgba(0, 0, 0, 0.04)" : "rgba(0, 0, 0, 0.02)",
+      border: `1px solid ${isFocused ? "#6366f1" : "rgba(0, 0, 0, 0.1)"}`,
       borderRadius: "8px",
       color: "var(--foreground)",
       fontSize: "16px",
@@ -249,10 +247,12 @@ export default function Edit() {
       alignItems: "center",
       justifyContent: "center",
       gap: "8px",
-      transform: isHovered && !isUploading ? "translateY(-2px)" : "translateY(0)",
-      boxShadow: isHovered && !isUploading
-        ? "0 4px 12px rgba(59, 130, 246, 0.4)"
-        : "0 2px 8px rgba(59, 130, 246, 0.2)",
+      transform:
+        isHovered && !isUploading ? "translateY(-2px)" : "translateY(0)",
+      boxShadow:
+        isHovered && !isUploading
+          ? "0 4px 12px rgba(59, 130, 246, 0.4)"
+          : "0 2px 8px rgba(59, 130, 246, 0.2)",
     };
   };
 
@@ -317,9 +317,7 @@ export default function Edit() {
       background: "linear-gradient(135deg, #6366f1 0%, #a855f7 100%)",
       color: "white",
       transform: isHovered ? "translateY(-2px)" : "translateY(0)",
-      boxShadow: isHovered
-        ? "0 4px 12px rgba(99, 102, 241, 0.4)"
-        : "none",
+      boxShadow: isHovered ? "0 4px 12px rgba(99, 102, 241, 0.4)" : "none",
     };
   };
 
@@ -383,7 +381,9 @@ export default function Edit() {
                   <label
                     htmlFor="file-upload"
                     style={getUploadButtonStyle()}
-                    onMouseEnter={() => !isUploading && setHoveredButton("upload")}
+                    onMouseEnter={() =>
+                      !isUploading && setHoveredButton("upload")
+                    }
                     onMouseLeave={() => setHoveredButton(null)}
                   >
                     {isUploading ? (
@@ -402,7 +402,11 @@ export default function Edit() {
               <div style={{ marginTop: "16px", marginBottom: "8px" }}>
                 <label
                   htmlFor="imageUrl"
-                  style={{ ...formGroupLabelStyle, fontSize: "12px", opacity: 0.8 }}
+                  style={{
+                    ...formGroupLabelStyle,
+                    fontSize: "12px",
+                    opacity: 0.8,
+                  }}
                 >
                   または、画像URLを直接入力
                 </label>
@@ -432,10 +436,7 @@ export default function Edit() {
               <label style={formGroupLabelStyle}>SNSリンク</label>
               <div style={snsInputsStyle}>
                 <div>
-                  <label
-                    htmlFor="twitter"
-                    style={snsInputGroupLabelStyle}
-                  >
+                  <label htmlFor="twitter" style={snsInputGroupLabelStyle}>
                     X (Twitter)
                   </label>
                   <input

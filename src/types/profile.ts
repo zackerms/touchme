@@ -8,4 +8,3 @@ export interface Profile {
     zenn?: string;
   };
 }
-

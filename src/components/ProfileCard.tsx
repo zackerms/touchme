@@ -28,33 +28,36 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
   // ジャイロセンサーの自動有効化
   useEffect(() => {
     // デバイス検出
-    const isTouchDevice = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-    const hasDeviceMotion = typeof DeviceMotionEvent !== 'undefined';
-    
+    const isTouchDevice =
+      "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    const hasDeviceMotion = typeof DeviceMotionEvent !== "undefined";
+
     if (!isTouchDevice || !hasDeviceMotion) {
       // デスクトップまたは非対応デバイス
-      console.log('ジャイロ非対応デバイス');
+      console.log("ジャイロ非対応デバイス");
       return;
     }
 
     // iOS 13+ の許可リクエスト
     const requestPermission = async () => {
-      if (typeof (DeviceMotionEvent as any).requestPermission === 'function') {
+      if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
         // iOS Safari
         try {
-          const permission = await (DeviceMotionEvent as any).requestPermission();
-          if (permission === 'granted') {
-            console.log('ジャイロ許可が得られました');
+          const permission = await (
+            DeviceMotionEvent as any
+          ).requestPermission();
+          if (permission === "granted") {
+            console.log("ジャイロ許可が得られました");
             setGyroEnabled(true);
           } else {
-            console.log('ジャイロ許可が拒否されました');
+            console.log("ジャイロ許可が拒否されました");
           }
         } catch (error) {
-          console.error('ジャイロ許可リクエストエラー:', error);
+          console.error("ジャイロ許可リクエストエラー:", error);
         }
       } else {
         // Android または iOS 12以下（許可不要）
-        console.log('ジャイロ自動有効化（Android/iOS 12以下）');
+        console.log("ジャイロ自動有効化（Android/iOS 12以下）");
         setGyroEnabled(true);
       }
     };
@@ -75,26 +78,35 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           const sensitivity = 0.35;
           // スムージング係数（0.25 = 25%の変化を適用、75%は前の値を保持）
           const smoothing = 0.1;
-          
+
           const targetX = Math.max(-20, Math.min(20, beta * sensitivity));
           const targetY = Math.max(-20, Math.min(20, alpha * sensitivity));
-          
+
           // 前の値と現在の値をブレンドしてスムーズに
-          const smoothedX = currentRotationRef.current.x * (1 - smoothing) + targetX * smoothing;
-          const smoothedY = currentRotationRef.current.y * (1 - smoothing) + targetY * smoothing;
-          
+          const smoothedX =
+            currentRotationRef.current.x * (1 - smoothing) +
+            targetX * smoothing;
+          const smoothedY =
+            currentRotationRef.current.y * (1 - smoothing) +
+            targetY * smoothing;
+
           // デバッグログ（開発時のみ）
-          if (process.env.NODE_ENV === 'development') {
-            console.log('ジャイロイベント:', { alpha, beta, smoothedX, smoothedY });
+          if (process.env.NODE_ENV === "development") {
+            console.log("ジャイロイベント:", {
+              alpha,
+              beta,
+              smoothedX,
+              smoothedY,
+            });
           }
-          
+
           currentRotationRef.current = { x: smoothedX, y: smoothedY };
           setRotation({ x: smoothedX, y: smoothedY });
         }
       } else {
         // rotationRateが存在しない場合のデバッグログ
-        if (process.env.NODE_ENV === 'development') {
-          console.warn('ジャイロイベント: rotationRateが存在しません', event);
+        if (process.env.NODE_ENV === "development") {
+          console.warn("ジャイロイベント: rotationRateが存在しません", event);
         }
       }
     };
@@ -206,7 +218,8 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     justifyContent: "center",
     background: "var(--card-background)",
     border: "1px solid var(--card-border)",
-    boxShadow: "0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 30px rgba(0, 0, 0, 0.06), 0 2px 10px rgba(0, 0, 0, 0.04)",
+    boxShadow:
+      "0 20px 60px rgba(0, 0, 0, 0.08), 0 8px 30px rgba(0, 0, 0, 0.06), 0 2px 10px rgba(0, 0, 0, 0.04)",
   };
 
   const cardFrontStyle: React.CSSProperties = {
@@ -259,9 +272,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
       height: "60px",
       borderRadius: "50%",
       border: "2px solid #e0e0e0",
-      background: isHovered
-        ? "#f0f0f0"
-        : "#ffffff",
+      background: isHovered ? "#f0f0f0" : "#ffffff",
       color: "var(--foreground)",
       fontSize: "24px",
       cursor: "pointer",
@@ -359,7 +370,15 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         <div style={cardBackStyle}>
           {profileUrl && (
             <div style={qrcodeWrapperStyle}>
-              <div style={{ background: "white", padding: "12px", borderRadius: "12px", boxShadow: "0 4px 16px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)" }}>
+              <div
+                style={{
+                  background: "white",
+                  padding: "12px",
+                  borderRadius: "12px",
+                  boxShadow:
+                    "0 4px 16px rgba(0, 0, 0, 0.15), 0 1px 4px rgba(0, 0, 0, 0.1)",
+                }}
+              >
                 <QRCodeDisplay value={profileUrl} size={180} />
               </div>
               <p style={qrcodeLabelStyle}>プロフィールページを開く</p>

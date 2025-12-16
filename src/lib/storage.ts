@@ -73,7 +73,7 @@ class StorageAdapter {
         },
         {
           onConflict: "id",
-        }
+        },
       );
 
       if (error) {
@@ -146,4 +146,3 @@ class StorageAdapter {
 }
 
 export const storage = new StorageAdapter();
-

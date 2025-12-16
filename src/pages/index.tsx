@@ -41,13 +41,13 @@ export default function Home() {
 
   const handleDelete = async (id: string, e: React.MouseEvent) => {
     e.stopPropagation();
-    
+
     // 作成者チェック
     if (!storage.isMyProfile(id)) {
       alert("このプロフィールを削除する権限がありません");
       return;
     }
-    
+
     if (confirm("このプロフィールを削除しますか？")) {
       try {
         await storage.deleteProfile(id);
@@ -213,9 +213,7 @@ export default function Home() {
       fontSize: "14px",
       cursor: "pointer",
       transition: "all 0.2s ease",
-      background: isHovered
-        ? "#3b82f6"
-        : "transparent",
+      background: isHovered ? "#3b82f6" : "transparent",
       color: isHovered ? "white" : "#3b82f6",
     };
   };
@@ -229,9 +227,7 @@ export default function Home() {
       fontSize: "14px",
       cursor: "pointer",
       transition: "all 0.2s ease",
-      background: isHovered
-        ? "#ef4444"
-        : "transparent",
+      background: isHovered ? "#ef4444" : "transparent",
       color: isHovered ? "white" : "#ef4444",
     };
   };
@@ -240,7 +236,10 @@ export default function Home() {
     <>
       <Head>
         <title>touchme - プロフィール一覧</title>
-        <meta name="description" content="touchme - エンジニア向けプロフィールカードアプリ" />
+        <meta
+          name="description"
+          content="touchme - エンジニア向けプロフィールカードアプリ"
+        />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
@@ -332,7 +331,9 @@ export default function Home() {
                         e.stopPropagation();
                         router.push(`/edit?id=${profile.id}`);
                       }}
-                      onMouseEnter={() => setHoveredButton(`edit-${profile.id}`)}
+                      onMouseEnter={() =>
+                        setHoveredButton(`edit-${profile.id}`)
+                      }
                       onMouseLeave={() => setHoveredButton(null)}
                     >
                       編集
