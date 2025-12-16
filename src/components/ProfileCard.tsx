@@ -336,7 +336,10 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         <div style={cardFrontStyle}>
           <div style={imageContainerStyle}>
             <Image
-              src={profile.imageUrl || "/api/placeholder/200/200"}
+              src={
+                profile.imageUrl ||
+                "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23999' width='200' height='200'/%3E%3Ctext fill='%23fff' font-family='sans-serif' font-size='20' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E"
+              }
               alt={profile.name}
               width={200}
               height={200}
