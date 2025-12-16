@@ -90,6 +90,7 @@ export default function ProfilePage() {
       </Head>
       <main style={profilePageStyle}>
         <button
+          type="button"
           style={backButtonStyle}
           onClick={() => router.push("/")}
           onMouseEnter={(e) => {

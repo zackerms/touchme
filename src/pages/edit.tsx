@@ -1,6 +1,7 @@
 "use client";
 
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useRef, useState } from "react";
 import { storage } from "@/lib/storage";
@@ -387,9 +388,7 @@ export default function Edit() {
                     onMouseLeave={() => setHoveredButton(null)}
                   >
                     {isUploading ? (
-                      <>
-                        <span>アップロード中...</span>
-                      </>
+                      <span>アップロード中...</span>
                     ) : (
                       <>
                         <span>📷</span>
@@ -423,9 +422,11 @@ export default function Edit() {
               </div>
               {profile.imageUrl && (
                 <div style={imagePreviewStyle}>
-                  <img
+                  <Image
                     src={profile.imageUrl}
                     alt="プレビュー"
+                    width={100}
+                    height={100}
                     style={imagePreviewImgStyle}
                   />
                 </div>
@@ -433,69 +434,71 @@ export default function Edit() {
             </div>
 
             <div style={formGroupStyle}>
-              <label style={formGroupLabelStyle}>SNSリンク</label>
-              <div style={snsInputsStyle}>
-                <div>
-                  <label htmlFor="twitter" style={snsInputGroupLabelStyle}>
-                    X (Twitter)
-                  </label>
-                  <input
-                    id="twitter"
-                    type="url"
-                    value={profile.links.twitter || ""}
-                    onChange={(e) =>
-                      handleChange("links", {
-                        ...profile.links,
-                        twitter: e.target.value || undefined,
-                      })
-                    }
-                    onFocus={() => setFocusedInput("twitter")}
-                    onBlur={() => setFocusedInput(null)}
-                    placeholder="https://x.com/username"
-                    style={getInputStyle("twitter")}
-                  />
+              <fieldset style={{ border: "none", padding: 0, margin: 0 }}>
+                <legend style={formGroupLabelStyle}>SNSリンク</legend>
+                <div style={snsInputsStyle}>
+                  <div>
+                    <label htmlFor="twitter" style={snsInputGroupLabelStyle}>
+                      X (Twitter)
+                    </label>
+                    <input
+                      id="twitter"
+                      type="url"
+                      value={profile.links.twitter || ""}
+                      onChange={(e) =>
+                        handleChange("links", {
+                          ...profile.links,
+                          twitter: e.target.value || undefined,
+                        })
+                      }
+                      onFocus={() => setFocusedInput("twitter")}
+                      onBlur={() => setFocusedInput(null)}
+                      placeholder="https://x.com/username"
+                      style={getInputStyle("twitter")}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="github" style={snsInputGroupLabelStyle}>
+                      GitHub
+                    </label>
+                    <input
+                      id="github"
+                      type="url"
+                      value={profile.links.github || ""}
+                      onChange={(e) =>
+                        handleChange("links", {
+                          ...profile.links,
+                          github: e.target.value || undefined,
+                        })
+                      }
+                      onFocus={() => setFocusedInput("github")}
+                      onBlur={() => setFocusedInput(null)}
+                      placeholder="https://github.com/username"
+                      style={getInputStyle("github")}
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="zenn" style={snsInputGroupLabelStyle}>
+                      Zenn
+                    </label>
+                    <input
+                      id="zenn"
+                      type="url"
+                      value={profile.links.zenn || ""}
+                      onChange={(e) =>
+                        handleChange("links", {
+                          ...profile.links,
+                          zenn: e.target.value || undefined,
+                        })
+                      }
+                      onFocus={() => setFocusedInput("zenn")}
+                      onBlur={() => setFocusedInput(null)}
+                      placeholder="https://zenn.dev/username"
+                      style={getInputStyle("zenn")}
+                    />
+                  </div>
                 </div>
-                <div>
-                  <label htmlFor="github" style={snsInputGroupLabelStyle}>
-                    GitHub
-                  </label>
-                  <input
-                    id="github"
-                    type="url"
-                    value={profile.links.github || ""}
-                    onChange={(e) =>
-                      handleChange("links", {
-                        ...profile.links,
-                        github: e.target.value || undefined,
-                      })
-                    }
-                    onFocus={() => setFocusedInput("github")}
-                    onBlur={() => setFocusedInput(null)}
-                    placeholder="https://github.com/username"
-                    style={getInputStyle("github")}
-                  />
-                </div>
-                <div>
-                  <label htmlFor="zenn" style={snsInputGroupLabelStyle}>
-                    Zenn
-                  </label>
-                  <input
-                    id="zenn"
-                    type="url"
-                    value={profile.links.zenn || ""}
-                    onChange={(e) =>
-                      handleChange("links", {
-                        ...profile.links,
-                        zenn: e.target.value || undefined,
-                      })
-                    }
-                    onFocus={() => setFocusedInput("zenn")}
-                    onBlur={() => setFocusedInput(null)}
-                    placeholder="https://zenn.dev/username"
-                    style={getInputStyle("zenn")}
-                  />
-                </div>
-              </div>
+              </fieldset>
             </div>
 
             <div style={formActionsStyle}>

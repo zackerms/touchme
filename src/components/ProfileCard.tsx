@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState } from "react";
 import type { Profile } from "@/types/profile";
 import QRCodeDisplay from "./QRCodeDisplay";
@@ -14,7 +15,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
   const [profileUrl, setProfileUrl] = useState<string>("");
   const [gyroEnabled, setGyroEnabled] = useState(false);
   const [hoveredButton, setHoveredButton] = useState<string | null>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const cardRef = useRef<HTMLButtonElement>(null);
   const currentRotationRef = useRef({ x: 0, y: 0 });
 
   // プロフィールURLを生成
@@ -40,12 +41,17 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
 
     // iOS 13+ の許可リクエスト
     const requestPermission = async () => {
-      if (typeof (DeviceMotionEvent as any).requestPermission === "function") {
+      const DeviceMotionEventWithPermission =
+        DeviceMotionEvent as unknown as typeof DeviceMotionEvent & {
+          requestPermission?: () => Promise<"granted" | "denied" | "default">;
+        };
+      if (
+        typeof DeviceMotionEventWithPermission.requestPermission === "function"
+      ) {
         // iOS Safari
         try {
-          const permission = await (
-            DeviceMotionEvent as any
-          ).requestPermission();
+          const permission =
+            await DeviceMotionEventWithPermission.requestPermission();
           if (permission === "granted") {
             console.log("ジャイロ許可が得られました");
             setGyroEnabled(true);
@@ -122,6 +128,13 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     setIsFlipped(!isFlipped);
   };
 
+  const handleCardKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === "Enter" || e.key === " ") {
+      e.preventDefault();
+      setIsFlipped(!isFlipped);
+    }
+  };
+
   const handleSNSIconClick = (e: React.MouseEvent, link: string) => {
     e.stopPropagation();
     // 新しいタブでSNSページを開く
@@ -156,24 +169,24 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
         return "𝕏";
       case "github":
         return (
-          <img
+          <Image
             src="/github.svg"
             alt="GitHub"
+            width={24}
+            height={24}
             style={{
-              width: "24px",
-              height: "24px",
               objectFit: "contain",
             }}
           />
         );
       case "zenn":
         return (
-          <img
+          <Image
             src="/zenn.svg"
             alt="Zenn"
+            width={24}
+            height={24}
             style={{
-              width: "24px",
-              height: "24px",
               objectFit: "contain",
             }}
           />
@@ -304,22 +317,33 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
   };
 
   return (
-    <div
+    <button
       ref={cardRef}
-      style={cardContainerStyle}
+      type="button"
+      style={{
+        ...cardContainerStyle,
+        border: "none",
+        background: "transparent",
+        padding: 0,
+      }}
       onClick={handleCardClick}
+      onKeyDown={handleCardKeyDown}
       onMouseMove={handleMouseMove}
       onMouseLeave={handleMouseLeave}
+      aria-label="プロフィールカードをクリックしてQRコードを表示"
     >
       <div style={cardStyle}>
         <div style={cardFrontStyle}>
           <div style={imageContainerStyle}>
-            <img
+            <Image
               src={profile.imageUrl || "/api/placeholder/200/200"}
               alt={profile.name}
+              width={200}
+              height={200}
               style={profileImageStyle}
               onError={(e) => {
-                (e.target as HTMLImageElement).src =
+                const target = e.target as HTMLImageElement;
+                target.src =
                   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect fill='%23999' width='200' height='200'/%3E%3Ctext fill='%23fff' font-family='sans-serif' font-size='20' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
               }}
             />
@@ -328,8 +352,13 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           <div style={snsIconsStyle}>
             {profile.links.twitter && (
               <button
+                type="button"
                 style={getSNSButtonStyle("twitter")}
-                onClick={(e) => handleSNSIconClick(e, profile.links.twitter!)}
+                onClick={(e) => {
+                  if (profile.links.twitter) {
+                    handleSNSIconClick(e, profile.links.twitter);
+                  }
+                }}
                 onMouseEnter={() => setHoveredButton("twitter")}
                 onMouseLeave={() => setHoveredButton(null)}
                 onMouseDown={() => setHoveredButton("twitter")}
@@ -341,8 +370,13 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             )}
             {profile.links.github && (
               <button
+                type="button"
                 style={getSNSButtonStyle("github")}
-                onClick={(e) => handleSNSIconClick(e, profile.links.github!)}
+                onClick={(e) => {
+                  if (profile.links.github) {
+                    handleSNSIconClick(e, profile.links.github);
+                  }
+                }}
                 onMouseEnter={() => setHoveredButton("github")}
                 onMouseLeave={() => setHoveredButton(null)}
                 onMouseDown={() => setHoveredButton("github")}
@@ -354,8 +388,13 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
             )}
             {profile.links.zenn && (
               <button
+                type="button"
                 style={getSNSButtonStyle("zenn")}
-                onClick={(e) => handleSNSIconClick(e, profile.links.zenn!)}
+                onClick={(e) => {
+                  if (profile.links.zenn) {
+                    handleSNSIconClick(e, profile.links.zenn);
+                  }
+                }}
                 onMouseEnter={() => setHoveredButton("zenn")}
                 onMouseLeave={() => setHoveredButton(null)}
                 onMouseDown={() => setHoveredButton("zenn")}
@@ -386,6 +425,6 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
           )}
         </div>
       </div>
-    </div>
+    </button>
   );
 }

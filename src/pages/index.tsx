@@ -1,6 +1,7 @@
 "use client";
 
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { useEffect, useState } from "react";
 import QRCodeDisplay from "@/components/QRCodeDisplay";
@@ -247,6 +248,7 @@ export default function Home() {
         <div style={headerStyle}>
           <h1 style={headerH1Style}>touchme</h1>
           <button
+            type="button"
             style={getCreateButtonStyle()}
             onClick={() => router.push("/edit")}
             onMouseEnter={() => setHoveredButton("create")}
@@ -269,6 +271,7 @@ export default function Home() {
           <div style={emptyStateStyle}>
             <p style={emptyStatePStyle}>プロフィールがありません</p>
             <button
+              type="button"
               style={getCreateButtonStyle()}
               onClick={() => router.push("/edit")}
               onMouseEnter={() => setHoveredButton("create")}
@@ -280,20 +283,31 @@ export default function Home() {
         ) : (
           <div style={profileListStyle}>
             {profiles.map((profile) => (
-              <div
+              <button
                 key={profile.id}
-                style={getProfileItemStyle(profile.id)}
+                type="button"
+                style={{
+                  ...getProfileItemStyle(profile.id),
+                  border: "none",
+                  background: "var(--card-background)",
+                  width: "100%",
+                  textAlign: "left",
+                }}
                 onClick={() => handleCardClick(profile.id)}
                 onMouseEnter={() => setHoveredItem(profile.id)}
                 onMouseLeave={() => setHoveredItem(null)}
+                aria-label={`${profile.name}のプロフィールを開く`}
               >
                 <div style={profilePreviewStyle}>
-                  <img
+                  <Image
                     src={profile.imageUrl || "/api/placeholder/100/100"}
                     alt={profile.name}
+                    width={60}
+                    height={60}
                     style={previewImageStyle}
                     onError={(e) => {
-                      (e.target as HTMLImageElement).src =
+                      const target = e.target as HTMLImageElement;
+                      target.src =
                         "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100'%3E%3Crect fill='%23999' width='100' height='100'/%3E%3Ctext fill='%23fff' font-family='sans-serif' font-size='12' x='50%25' y='50%25' text-anchor='middle' dy='.3em'%3ENo Image%3C/text%3E%3C/svg%3E";
                     }}
                   />
@@ -308,12 +322,12 @@ export default function Home() {
                       {profile.links.twitter && <span>𝕏</span>}
                       {profile.links.github && <span>⚡</span>}
                       {profile.links.zenn && (
-                        <img
+                        <Image
                           src="/zenn.svg"
                           alt="Zenn"
+                          width={16}
+                          height={16}
                           style={{
-                            width: "16px",
-                            height: "16px",
                             objectFit: "contain",
                             display: "inline-block",
                             verticalAlign: "middle",
@@ -326,6 +340,7 @@ export default function Home() {
                 {myProfileIds.includes(profile.id) && (
                   <div style={profileActionsStyle}>
                     <button
+                      type="button"
                       style={getEditButtonStyle(profile.id)}
                       onClick={(e) => {
                         e.stopPropagation();
@@ -339,6 +354,7 @@ export default function Home() {
                       編集
                     </button>
                     <button
+                      type="button"
                       style={getDeleteButtonStyle(profile.id)}
                       onClick={(e) => handleDelete(profile.id, e)}
                       onMouseEnter={() =>
@@ -350,7 +366,7 @@ export default function Home() {
                     </button>
                   </div>
                 )}
-              </div>
+              </button>
             ))}
           </div>
         )}
