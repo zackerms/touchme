@@ -242,11 +242,11 @@ export default function Home() {
           content="HiTouch - エンジニア向けプロフィールカードアプリ"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
-        <link rel="icon" href="/favicon.ico" />
+        <link rel="icon" href="/icon.png" />
       </Head>
       <main style={indexPageStyle}>
         <div style={headerStyle}>
-          <h1 style={headerH1Style}>HiTouch</h1>
+          <h1 style={headerH1Style}>Hi 👋 Touch</h1>
           <button
             type="button"
             style={getCreateButtonStyle()}
