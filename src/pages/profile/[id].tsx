@@ -71,7 +71,7 @@ export default function ProfilePage() {
     return (
       <>
         <Head>
-          <title>読み込み中... - touchme</title>
+          <title>読み込み中... - HiTouch</title>
         </Head>
         <div style={loadingStyle}>読み込み中...</div>
       </>
@@ -85,7 +85,7 @@ export default function ProfilePage() {
   return (
     <>
       <Head>
-        <title>{profile.name} - touchme</title>
+        <title>{profile.name} - HiTouch</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
       <main style={profilePageStyle}>

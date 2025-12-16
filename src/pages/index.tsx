@@ -236,17 +236,17 @@ export default function Home() {
   return (
     <>
       <Head>
-        <title>touchme - プロフィール一覧</title>
+        <title>HiTouch - プロフィール一覧</title>
         <meta
           name="description"
-          content="touchme - エンジニア向けプロフィールカードアプリ"
+          content="HiTouch - エンジニア向けプロフィールカードアプリ"
         />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
         <link rel="icon" href="/favicon.ico" />
       </Head>
       <main style={indexPageStyle}>
         <div style={headerStyle}>
-          <h1 style={headerH1Style}>touchme</h1>
+          <h1 style={headerH1Style}>HiTouch</h1>
           <button
             type="button"
             style={getCreateButtonStyle()}

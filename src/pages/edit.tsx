@@ -326,7 +326,7 @@ export default function Edit() {
     return (
       <>
         <Head>
-          <title>読み込み中... - touchme</title>
+          <title>読み込み中... - HiTouch</title>
         </Head>
         <div style={loadingStyle}>読み込み中...</div>
       </>
@@ -337,7 +337,7 @@ export default function Edit() {
     <>
       <Head>
         <title>
-          {id ? "プロフィール編集" : "新規プロフィール作成"} - touchme
+          {id ? "プロフィール編集" : "新規プロフィール作成"} - HiTouch
         </title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
