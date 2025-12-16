@@ -22,6 +22,32 @@ export default function Edit() {
   const [focusedInput, setFocusedInput] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
+  // SNS IDをURLに正規化するヘルパー関数
+  const normalizeSNSUrl = (
+    platform: "twitter" | "github" | "zenn",
+    value: string,
+  ): string | null => {
+    if (!value.trim()) return null;
+
+    // 既にURL形式の場合はそのまま返す
+    if (value.startsWith("http://") || value.startsWith("https://")) {
+      return value;
+    }
+
+    // IDのみの場合、URLに補完
+    const id = value.trim();
+    switch (platform) {
+      case "twitter":
+        return `https://x.com/${id}`;
+      case "github":
+        return `https://github.com/${id}`;
+      case "zenn":
+        return `https://zenn.dev/${id}`;
+      default:
+        return null;
+    }
+  };
+
   useEffect(() => {
     const loadProfile = async () => {
       if (router.isReady) {
@@ -68,15 +94,33 @@ export default function Edit() {
       return;
     }
     try {
+      // 保存前に全てのSNSリンクを正規化
+      const normalizedLinks = {
+        twitter: profile.links.twitter
+          ? normalizeSNSUrl("twitter", profile.links.twitter) || undefined
+          : undefined,
+        github: profile.links.github
+          ? normalizeSNSUrl("github", profile.links.github) || undefined
+          : undefined,
+        zenn: profile.links.zenn
+          ? normalizeSNSUrl("zenn", profile.links.zenn) || undefined
+          : undefined,
+      };
+
+      const profileToSave = {
+        ...profile,
+        links: normalizedLinks,
+      };
+
       const isNewProfile = !id;
-      await storage.saveProfile(profile);
+      await storage.saveProfile(profileToSave);
 
       // 新規作成時は作成者IDとして保存
       if (isNewProfile) {
-        storage.addMyProfileId(profile.id);
+        storage.addMyProfileId(profileToSave.id);
       }
 
-      router.push(`/profile/${profile.id}`);
+      router.push(`/profile/${profileToSave.id}`);
     } catch (error) {
       console.error("Failed to save profile:", error);
       alert("プロフィールの保存に失敗しました");
@@ -281,6 +325,13 @@ export default function Edit() {
     opacity: 0.8,
   };
 
+  const previewTextStyle: React.CSSProperties = {
+    fontSize: "12px",
+    color: "rgba(99, 102, 241, 0.6)",
+    marginTop: "4px",
+    fontStyle: "italic",
+  };
+
   const formActionsStyle: React.CSSProperties = {
     display: "flex",
     gap: "12px",
@@ -452,10 +503,27 @@ export default function Edit() {
                         })
                       }
                       onFocus={() => setFocusedInput("twitter")}
-                      onBlur={() => setFocusedInput(null)}
-                      placeholder="https://x.com/username"
+                      onBlur={(e) => {
+                        setFocusedInput(null);
+                        const normalized = normalizeSNSUrl("twitter", e.target.value);
+                        if (normalized && normalized !== e.target.value) {
+                          handleChange("links", {
+                            ...profile.links,
+                            twitter: normalized,
+                          });
+                        }
+                      }}
+                      placeholder="ユーザーID または https://x.com/user_id"
                       style={getInputStyle("twitter")}
                     />
+                    {profile.links.twitter &&
+                      !profile.links.twitter.startsWith("http://") &&
+                      !profile.links.twitter.startsWith("https://") && (
+                        <div style={previewTextStyle}>
+                          保存されるURL:{" "}
+                          {normalizeSNSUrl("twitter", profile.links.twitter)}
+                        </div>
+                      )}
                   </div>
                   <div>
                     <label htmlFor="github" style={snsInputGroupLabelStyle}>
@@ -472,10 +540,27 @@ export default function Edit() {
                         })
                       }
                       onFocus={() => setFocusedInput("github")}
-                      onBlur={() => setFocusedInput(null)}
-                      placeholder="https://github.com/username"
+                      onBlur={(e) => {
+                        setFocusedInput(null);
+                        const normalized = normalizeSNSUrl("github", e.target.value);
+                        if (normalized && normalized !== e.target.value) {
+                          handleChange("links", {
+                            ...profile.links,
+                            github: normalized,
+                          });
+                        }
+                      }}
+                      placeholder="ユーザーID または https://github.com/user_id"
                       style={getInputStyle("github")}
                     />
+                    {profile.links.github &&
+                      !profile.links.github.startsWith("http://") &&
+                      !profile.links.github.startsWith("https://") && (
+                        <div style={previewTextStyle}>
+                          保存されるURL:{" "}
+                          {normalizeSNSUrl("github", profile.links.github)}
+                        </div>
+                      )}
                   </div>
                   <div>
                     <label htmlFor="zenn" style={snsInputGroupLabelStyle}>
@@ -492,10 +577,27 @@ export default function Edit() {
                         })
                       }
                       onFocus={() => setFocusedInput("zenn")}
-                      onBlur={() => setFocusedInput(null)}
-                      placeholder="https://zenn.dev/username"
+                      onBlur={(e) => {
+                        setFocusedInput(null);
+                        const normalized = normalizeSNSUrl("zenn", e.target.value);
+                        if (normalized && normalized !== e.target.value) {
+                          handleChange("links", {
+                            ...profile.links,
+                            zenn: normalized,
+                          });
+                        }
+                      }}
+                      placeholder="ユーザーID または https://zenn.dev/user_id"
                       style={getInputStyle("zenn")}
                     />
+                    {profile.links.zenn &&
+                      !profile.links.zenn.startsWith("http://") &&
+                      !profile.links.zenn.startsWith("https://") && (
+                        <div style={previewTextStyle}>
+                          保存されるURL:{" "}
+                          {normalizeSNSUrl("zenn", profile.links.zenn)}
+                        </div>
+                      )}
                   </div>
                 </div>
               </fieldset>
