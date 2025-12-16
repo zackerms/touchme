@@ -15,6 +15,7 @@ export default function Home() {
   const [hoveredItem, setHoveredItem] = useState<string | null>(null);
   const [siteUrl, setSiteUrl] = useState<string>("");
   const [myProfileIds, setMyProfileIds] = useState<string[]>([]);
+  const [isWaving, setIsWaving] = useState(false);
   const router = useRouter();
 
   useEffect(() => {
@@ -68,6 +69,14 @@ export default function Home() {
     router.push(`/profile/${id}`);
   };
 
+  const handleEmojiClick = () => {
+    if (isWaving) return; // アニメーション中は無視
+    setIsWaving(true);
+    setTimeout(() => {
+      setIsWaving(false);
+    }, 400); // アニメーション時間に合わせる
+  };
+
   const indexPageStyle: React.CSSProperties = {
     minHeight: "100vh",
     padding: "20px",
@@ -86,6 +95,34 @@ export default function Home() {
     fontSize: "32px",
     color: "var(--foreground)",
   };
+
+  const emojiStyle: React.CSSProperties = {
+    display: "inline-block",
+    cursor: "pointer",
+    transformOrigin: "70% 70%", // 手の付け根あたりを中心に回転
+    animation: isWaving ? "wave 400ms ease-in-out" : "none",
+  };
+
+  // CSS keyframesを動的に追加
+  useEffect(() => {
+    if (typeof document !== "undefined") {
+      const styleId = "wave-animation-style";
+      if (!document.getElementById(styleId)) {
+        const style = document.createElement("style");
+        style.id = styleId;
+        style.textContent = `
+          @keyframes wave {
+            0% { transform: rotate(0deg); }
+            25% { transform: rotate(-20deg); }
+            50% { transform: rotate(20deg); }
+            75% { transform: rotate(-15deg); }
+            100% { transform: rotate(0deg); }
+          }
+        `;
+        document.head.appendChild(style);
+      }
+    }
+  }, []);
 
   const qrCodeSectionStyle: React.CSSProperties = {
     display: "flex",
@@ -246,7 +283,25 @@ export default function Home() {
       </Head>
       <main style={indexPageStyle}>
         <div style={headerStyle}>
-          <h1 style={headerH1Style}>Hi 👋 Touch</h1>
+          <h1 style={headerH1Style}>
+            Hi{" "}
+            <span
+              style={emojiStyle}
+              onClick={handleEmojiClick}
+              role="button"
+              tabIndex={0}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  handleEmojiClick();
+                }
+              }}
+              aria-label="手を振る"
+            >
+              👋
+            </span>{" "}
+            Touch
+          </h1>
           <button
             type="button"
             style={getCreateButtonStyle()}
