@@ -141,7 +141,7 @@ export default function ProfileCard({ profile }: ProfileCardProps) {
     window.open(link, "_blank", "noopener,noreferrer");
   };
 
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseMove = (e: React.MouseEvent<HTMLButtonElement>) => {
     if (!cardRef.current || gyroEnabled) return;
 
     const rect = cardRef.current.getBoundingClientRect();
