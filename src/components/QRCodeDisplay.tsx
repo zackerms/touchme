@@ -18,7 +18,18 @@ export default function QRCodeDisplay({
 
   return (
     <div style={containerStyle}>
-      <QRCodeSVG value={value} size={size} level="M" />
+      <QRCodeSVG
+        value={value}
+        size={size}
+        level="H"
+        boostLevel
+        imageSettings={{
+          src: "/icon.png",
+          height: 60,
+          width: 60,
+          excavate: true,
+        }}
+      />
     </div>
   );
 }
