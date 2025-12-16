@@ -1,8 +1,8 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { useRouter } from "next/router";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect, useRef, useState } from "react";
 import { storage } from "@/lib/storage";
 import type { Profile } from "@/types/profile";
 

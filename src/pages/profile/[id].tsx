@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import ProfileCard from "@/components/ProfileCard";
 import { storage } from "@/lib/storage";
 import type { Profile } from "@/types/profile";
-import ProfileCard from "@/components/ProfileCard";
 
 export default function ProfilePage() {
   const router = useRouter();

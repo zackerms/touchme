@@ -1,11 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useRouter } from "next/router";
 import Head from "next/head";
+import { useRouter } from "next/router";
+import { useEffect, useState } from "react";
+import QRCodeDisplay from "@/components/QRCodeDisplay";
 import { storage } from "@/lib/storage";
 import type { Profile } from "@/types/profile";
-import QRCodeDisplay from "@/components/QRCodeDisplay";
 
 export default function Home() {
   const [profiles, setProfiles] = useState<Profile[]>([]);

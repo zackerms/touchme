@@ -1,5 +1,5 @@
-import type { NextApiRequest, NextApiResponse } from "next";
 import { put } from "@vercel/blob";
+import type { NextApiRequest, NextApiResponse } from "next";
 
 export const config = {
   api: {
